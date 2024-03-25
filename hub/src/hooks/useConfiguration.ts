@@ -8,6 +8,7 @@ import RolandV60HDConfiguration from '../mixer/rolandV60HD/RolandV60HDConfigurat
 import MockConfiguration from '../mixer/mock/MockConfiguration';
 import AtemConfiguration from '../mixer/atem/AtemConfiguration';
 import { DefaultTallyConfiguration } from '../tally/TallyConfiguration';
+import TricasterConfiguration from '../mixer/tricaster/TricasterConfiguration';
 
 const configTracker = new ConfigTracker(socket)
 
@@ -140,6 +141,26 @@ export function useRolandV60HDConfiguration() {
 
   return rolandV60HDConfiguration
 }
+
+export function useTricasterConfiguration() {
+  const [tricasterConfiguration, setTricasterConfiguration] = useState<TricasterConfiguration|undefined>(undefined)
+
+  const onChange = newConf => {
+    setTricasterConfiguration(newConf)
+  }
+
+  useEffect(() => {
+    configTracker.on("tricaster", onChange)
+    setTricasterConfiguration(configTracker.tricasterConfiguration)
+    return () => {
+      // cleanup
+      configTracker.off("tricaster", onChange)
+    }
+  }, [])
+
+  return tricasterConfiguration
+}
+
 
 export function useVmixConfiguration() {
   const [vmixConfiguration, setVmixConfiguration] = useState<VmixConfiguration|undefined>(undefined)

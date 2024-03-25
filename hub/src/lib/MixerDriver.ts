@@ -11,6 +11,7 @@ import type { AppConfiguration } from './AppConfiguration'
 import ServerEventEmitter from './ServerEventEmitter'
 import { Configuration, Connector } from '../mixer/interfaces'
 import TestConnector from '../mixer/test/TestConnector'
+import TricasterConnector from '../mixer/tricaster/TricasterConnector'
 
 const haveValuesChanged = (one: any, two: any) => {
     //@TODO: this could probably be more performant
@@ -95,6 +96,9 @@ export class MixerDriver {
             } else if(newMixerId === RolandV60HDConnector.ID) {
                 MixerClass = RolandV60HDConnector
                 this.getCurrentMixerSettings = this.configuration.getRolandV60HDConfiguration.bind(this.configuration)
+            } else if(newMixerId === TricasterConnector.ID) {
+                MixerClass = TricasterConnector
+                this.getCurrentMixerSettings = this.configuration.getTricasterConfiguration.bind(this.configuration)
             } else if(newMixerId === MockConnector.ID) {
                 MixerClass = MockConnector
                 this.getCurrentMixerSettings = this.configuration.getMockConfiguration.bind(this.configuration)
@@ -141,6 +145,7 @@ export class MixerDriver {
             RolandV8HDConnector.ID,
             RolandV60HDConnector.ID,
             VmixConnector.ID,
+            TricasterConnector.ID
         ]
 
         if (!isDev) {

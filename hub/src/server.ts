@@ -16,6 +16,7 @@ import { ServerSideSocket } from './lib/SocketEvents'
 import AppConfigurationPersistence from './lib/AppConfigurationPersistence'
 import AtemConfiguration from './mixer/atem/AtemConfiguration'
 import VmixConfiguration from './mixer/vmix/VmixConfiguration'
+import TricasterConfiguration from './mixer/tricaster/TricasterConfiguration'
 import ObsConfiguration from './mixer/obs/ObsConfiguration'
 import RolandV8HDConfiguration from './mixer/rolandV8HD/RolandV8HDConfiguration'
 import RolandV60HDConfiguration from './mixer/rolandV60HD/RolandV60HDConfiguration'
@@ -134,6 +135,9 @@ io.on('connection', (socket: ServerSideSocket) => {
     new SocketAwareEvent(myEmitter, 'config.changed.vmix', socket, (socket, vmixConfiguration) => {
       socket.emit('config.state.vmix', vmixConfiguration.toJson())
     }),
+    new SocketAwareEvent(myEmitter, 'config.changed.tricaster', socket, (socket, tricasterConfiguration) => {
+      socket.emit('config.state.tricaster', tricasterConfiguration.toJson())
+    }),
     new SocketAwareEvent(myEmitter, 'config.changed.tallyconfig', socket, (socket, tallyConfiguration) => {
       socket.emit('config.state.tallyconfig', tallyConfiguration.toJson())
     }),
@@ -151,7 +155,9 @@ io.on('connection', (socket: ServerSideSocket) => {
     socket.emit('config.state.rolandV8HD', myConfiguration.getRolandV8HDConfiguration().toJson())
     socket.emit('config.state.rolandV60HD', myConfiguration.getRolandV60HDConfiguration().toJson())
     socket.emit('config.state.vmix', myConfiguration.getVmixConfiguration().toJson())
+    socket.emit('config.state.tricaster', myConfiguration.getTricasterConfiguration().toJson())
     socket.emit('config.state.tallyconfig', myConfiguration.getTallyConfiguration().toJson())
+
   })
   socket.on('events.program.unsubscribe', () => {
     // @TODO: not used yet
@@ -297,6 +303,15 @@ io.on('connection', (socket: ServerSideSocket) => {
     const vmix = new VmixConfiguration()
     vmix.fromJson(newVmixConfiguration)
     myConfiguration.setVmixConfiguration(vmix)
+
+    if (newMixerName) {
+      myConfiguration.setMixerSelection(newMixerName)
+    }
+  })
+  socket.on('config.change.tricaster', (newTricasterConfiguration, newMixerName) => {
+    const tricaster = new TricasterConfiguration()
+    tricaster.fromJson(newTricasterConfiguration)
+    myConfiguration.setTricasterConfiguration(tricaster)
 
     if (newMixerName) {
       myConfiguration.setMixerSelection(newMixerName)

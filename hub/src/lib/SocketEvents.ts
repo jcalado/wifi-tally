@@ -13,6 +13,7 @@ import { StateCommand } from "../tally/CommandCreator";
 import { TallyConfigurationObjectType } from "../tally/TallyConfiguration";
 import { TallyDeviceObjectType } from "../flasher/TallyDevice";
 import { TallyProgramProgressType, TallySettingsIniProgressType } from "../flasher/NodeMcuConnector";
+import { TricasterConfigurationSaveType } from "../mixer/tricaster/TricasterConfiguration";
 
 // events the server sends to the client
 export interface ServerSentEvents {
@@ -32,6 +33,7 @@ export interface ServerSentEvents {
     'config.state.rolandV8HD': (rolandV8HDConfiguration: RolandV8HDConfigurationSaveType) => void
     'config.state.rolandV60HD': (rolandV60HDConfiguration: RolandV60HDConfigurationSaveType) => void
     'config.state.vmix': (vmixConfiguration: VmixConfigurationSaveType) => void
+    'config.state.tricaster': (tricasterConfiguration: TricasterConfigurationSaveType) => void
     'config.state.tallyconfig': (defaultTallyConfiguration: TallyConfigurationObjectType) => void
     'config.state.mixer': (data: {mixerName: string, allowedMixers: string[]}) => void
 
@@ -71,6 +73,7 @@ export interface ClientSentEvents {
     'config.change.rolandV8HD': (rolandV8HDConfiguration: RolandV8HDConfigurationSaveType, newMixer?: "rolandV8HD") => void
     'config.change.rolandV60HD': (rolandV60HDConfiguration: RolandV60HDConfigurationSaveType, newMixer?: "rolandV60HD") => void
     'config.change.vmix': (vmixConfiguration: VmixConfigurationSaveType, newMixer?: "vmix") => void
+    'config.change.tricaster': (tricasterConfiguration: TricasterConfigurationSaveType, newMixer?: "tricaster") => void
     'config.change.tallyconfig': (configuration: TallyConfigurationObjectType) => void
 
     'flasher.device.get': () => void

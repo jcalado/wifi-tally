@@ -7,6 +7,7 @@ import ObsConfiguration from '../mixer/obs/ObsConfiguration'
 import RolandV8HDConfiguration from '../mixer/rolandV8HD/RolandV8HDConfiguration'
 import RolandV60HDConfiguration from '../mixer/rolandV60HD/RolandV60HDConfiguration'
 import VmixConfiguration from '../mixer/vmix/VmixConfiguration'
+import TricasterConfiguration from '../mixer/tricaster/TricasterConfiguration'
 import NullConfiguration from '../mixer/null/NullConfiguration'
 import { Configuration } from '../mixer/interfaces'
 import Tally from '../domain/Tally'
@@ -23,6 +24,7 @@ export class AppConfiguration extends Configuration {
     rolandV60HDConfiguration: RolandV60HDConfiguration
     testConfiguration: TestConfiguration
     vmixConfiguration: VmixConfiguration
+    tricasterConfiguration: TricasterConfiguration
     tallyConfiguration: DefaultTallyConfiguration
     tallies: Tally[]
     channels: Channel[]
@@ -44,6 +46,7 @@ export class AppConfiguration extends Configuration {
         this.rolandV60HDConfiguration = new RolandV60HDConfiguration()
         this.testConfiguration = new TestConfiguration()
         this.vmixConfiguration = new VmixConfiguration()
+        this.tricasterConfiguration = new TricasterConfiguration()
         this.tallyConfiguration = new DefaultTallyConfiguration()
         this.tallies = []
         this.channels = MixerDriver.defaultChannels
@@ -114,6 +117,9 @@ export class AppConfiguration extends Configuration {
         if (data.vmix) {
             this.vmixConfiguration.fromJson(data.vmix)
         }
+        if (data.tricaster) {
+            this.tricasterConfiguration.fromJson(data.tricaster)
+        }
         if (data.tallyDefaults) {
             this.tallyConfiguration.fromJson(data.tallyDefaults)
         }
@@ -132,6 +138,7 @@ export class AppConfiguration extends Configuration {
             rolandV60HD: this.rolandV60HDConfiguration.toJson(),
             test: this.testConfiguration.toJson(),
             vmix: this.vmixConfiguration.toJson(),
+            tricaster: this.tricasterConfiguration.toJson(),
             tallyDefaults: this.tallyConfiguration.toJson(),
             tallies: this.tallies.map(tally => tally.toJsonForSave()),
             channels: this.channels.map(channel => channel.toJson()),
@@ -222,6 +229,20 @@ export class AppConfiguration extends Configuration {
         this.emitter.emit("config.changed", this)
         this.emitter.emit("config.changed.vmix", this.vmixConfiguration)
     }
+
+    
+    getTricasterConfiguration() {
+        return this.tricasterConfiguration.clone()
+    }
+
+    setTricasterConfiguration(tricasterConfiguration: TricasterConfiguration) {
+        this.tricasterConfiguration = tricasterConfiguration.clone()
+        this.emitter.emit("config.changed", this)
+        this.emitter.emit("config.changed.tricaster", this.tricasterConfiguration)
+    }
+
+    
+    
 
     getTallyConfiguration() {
         return this.tallyConfiguration.clone()

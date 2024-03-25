@@ -7,6 +7,7 @@ import RolandV8HDConfiguration from '../../mixer/rolandV8HD/RolandV8HDConfigurat
 import RolandV60HDConfiguration from '../../mixer/rolandV60HD/RolandV60HDConfiguration'
 import VmixConfiguration from '../../mixer/vmix/VmixConfiguration'
 import { DefaultTallyConfiguration } from '../../tally/TallyConfiguration'
+import TricasterConfiguration from '../../mixer/tricaster/TricasterConfiguration'
 
 class ConfigTracker extends EventEmitter{
     allowedMixers?: string[]
@@ -19,6 +20,7 @@ class ConfigTracker extends EventEmitter{
     rolandV8HDConfiguration?: RolandV8HDConfiguration
     rolandV60HDConfiguration?: RolandV60HDConfiguration
     vmixConfiguration?: VmixConfiguration
+    tricasterConfiguration?: TricasterConfiguration
     defaultTallyConfiguration?: DefaultTallyConfiguration
 
     constructor(socket: ClientSideSocket) {
@@ -59,6 +61,11 @@ class ConfigTracker extends EventEmitter{
             this.vmixConfiguration = new VmixConfiguration()
             this.vmixConfiguration.fromJson(vmix)
             this.emit('vmix', this.vmixConfiguration)
+        })
+        socket.on('config.state.tricaster', (tricaster) => {
+            this.tricasterConfiguration = new TricasterConfiguration()
+            this.tricasterConfiguration.fromJson(tricaster)
+            this.emit('tricaster', this.tricasterConfiguration)
         })
         socket.on('config.state.tallyconfig', (conf) => {
             this.defaultTallyConfiguration = new DefaultTallyConfiguration()

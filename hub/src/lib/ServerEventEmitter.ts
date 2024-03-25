@@ -10,6 +10,7 @@ import RolandV8HDConfiguration from "../mixer/rolandV8HD/RolandV8HDConfiguration
 import RolandV60HDConfiguration from "../mixer/rolandV60HD/RolandV60HDConfiguration"
 import TestConfiguration from "../mixer/test/TestConfiguration";
 import VmixConfiguration from "../mixer/vmix/VmixConfiguration";
+import TricasterConfiguration from "../mixer/tricaster/TricasterConfiguration";
 import { DefaultTallyConfiguration } from "../tally/TallyConfiguration";
 import { AppConfiguration } from "./AppConfiguration";
 import { ChannelList } from "./MixerCommunicator";
@@ -26,6 +27,7 @@ export interface EventHandlersDataMap {
     'config.changed.rolandV60HD': (rolandV60HDConfiguration: RolandV60HDConfiguration) => void
     'config.changed.test': (testConfiguration: TestConfiguration) => void
     'config.changed.vmix': (vmixConfiguration: VmixConfiguration) => void
+    'config.changed.tricaster': (tricasterConfiguration: TricasterConfiguration) => void
     'config.changed.tallyconfig': (tallyConfiguration: DefaultTallyConfiguration) => void
     'config.changed.channels': (channels: Channel[]) => void
     'config.changed.tallies': (tallies: Tally[]) => void
