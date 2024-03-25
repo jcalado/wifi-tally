@@ -1,14 +1,14 @@
 import { MixerCommunicator } from '../../lib/MixerCommunicator'
 import {Connector} from '../interfaces'
-import TC from "@bitfocusas/tricaster"
 import Channel from '../../domain/Channel'
 import TricasterConfiguration from './TricasterConfiguration'
+const TC = require("@bitfocusas/tricaster");
 
 class TricasterConnector implements Connector {
     configuration: TricasterConfiguration
     communicator: MixerCommunicator
     isTricasterConnected: boolean
-    myTricaster: TC | null
+    myTricaster: any
     
     constructor(configuration: TricasterConfiguration, communicator: MixerCommunicator) {
         this.configuration = configuration
@@ -17,27 +17,31 @@ class TricasterConnector implements Connector {
     }
     private onStateChange() {
         if (this.myTricaster) {
-            const programs = this.myTricaster.listVisibleInputs("program").sort().map(i => i.toString())
-            const previews = this.myTricaster.listVisibleInputs("preview").sort().map(i => i.toString())
-            this.communicator.notifyProgramPreviewChanged(programs, previews)
+            let channels: Channel[] = []
 
-            // const channels = Object.values(this.myTricaster.state?.inputs || {}).reduce((channels: Channel[], input) => {
-            //     if (input) {
-            //         channels.push(new Channel(input.inputId.toString(), input.longName))
-            //     }
-            //     return channels
-            // }, [])
-            // this.communicator.notifyChannels(channels)
+            const channelKeys = Object.keys(this.myTricaster.shortcut_states).filter(
+                k => k.match(/^input\d+_long_name/)
+            )
+            
+            channelKeys.forEach(channel => {
+                var id = this.myTricaster.shortcut_states[channel].value.split(" ")[0]
+                var name = this.myTricaster.shortcut_states[channel].value.split(" ")[1]
+
+                channels.push(new Channel(id, name))
+            })
+            this.communicator.notifyChannels(channels)
         }
     }
     connect() {
         this.myTricaster = new TC(this.configuration.getIp().toString())
+
         this.myTricaster.on('info', console.log)
         this.myTricaster.on('error', console.error)
 
         console.log(`Connecting to Tricaster at ${this.configuration.getIp().toString()}`)
+        this.myTricaster.connect();
 
-        this.myTricaster.on('connected', () => {
+        this.myTricaster.on('ready', () => {
             this.isTricasterConnected = true
             console.log("Connected to Tricaster")
             this.communicator.notifyMixerIsConnected()
@@ -45,7 +49,17 @@ class TricasterConnector implements Connector {
         })
 
         this.myTricaster.on('variable', (key, obj) => {
-            console.log("["+key+"]:",obj)
+        
+            if (key === 'preview_tally') {
+                console.log("PREVIEW TALLY:", obj.value)
+                this.communicator.notifyPreviewChanged([obj.value.split("INPUT")[1]])
+            }
+        
+            if (key === 'program_tally') {
+                console.log("PROGRAM TALLY:", obj.value)
+                this.communicator.notifyProgramChanged([obj.value.split("INPUT")[1]])
+            }
+
           });
         
         this.myTricaster.on('close', () => {
