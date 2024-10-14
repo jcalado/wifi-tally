@@ -20,14 +20,14 @@ class TricasterConnector implements Connector {
             let channels: Channel[] = []
 
             const channelKeys = Object.keys(this.myTricaster.shortcut_states).filter(
-                k => k.match(/^input\d+_long_name/)
+                k => k.match(/^input\d+_long_name/) || k.match(/^ddr\d+_long_name/) || k.match(/^v\d+_long_name/)
             )
             
             channelKeys.forEach(channel => {
                 var id = this.myTricaster.shortcut_states[channel].value.split(" ")[0]
                 var name = this.myTricaster.shortcut_states[channel].value.split(" ")[1]
 
-                channels.push(new Channel(id, name))
+                channels.push(new Channel(id, `${id} - ${name}`))	
             })
             this.communicator.notifyChannels(channels)
         }
@@ -50,14 +50,30 @@ class TricasterConnector implements Connector {
 
         this.myTricaster.on('variable', (key, obj) => {
         
+
             if (key === 'preview_tally') {
                 console.log("PREVIEW TALLY:", obj.value)
+                
+                // Check if obj.value is an array of inputs, or a single string input
+               if (obj.value.includes(",")) {
                 this.communicator.notifyPreviewChanged([obj.value.split("INPUT")[1]])
+               } else {
+                this.communicator.notifyPreviewChanged([obj.value])
+               }
+
+
+
+
             }
         
             if (key === 'program_tally') {
                 console.log("PROGRAM TALLY:", obj.value)
-                this.communicator.notifyProgramChanged([obj.value.split("INPUT")[1]])
+                if (obj.value.includes(",")) {
+                    this.communicator.notifyProgramChanged([obj.value.split("INPUT")[1]])
+                } else {
+                    this.communicator.notifyProgramChanged([obj.value])
+                }
+                
             }
 
           });
@@ -75,7 +91,7 @@ class TricasterConnector implements Connector {
         this.myTricaster.on('stateChanged', this.onStateChange.bind(this))
     }
     disconnect() {
-        console.log("Cutting connection to Tricaster mixer.")
+        console.log("Dropping connection to Tricaster mixer.")
         this.isTricasterConnected = false
         this.communicator.notifyMixerIsDisconnected()
         if(this.myTricaster) {
